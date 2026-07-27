@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "md2static"
 version = "0.1.0"
-description = "A CLI tool to convert Markdown to PDF or Image using GitHub's API"
+description = "A CLI tool to convert Markdown to html, PDF or Image using GitHub's API"
 readme = "README.md"
 authors = [{ name = "Henrik Finsberg", email = "henriknf@simula.no" }]
 license = "MIT"
@@ -21,3 +21,19 @@ test = ["pytest", "responses"]
 
 [project.scripts]
 md2static = "md2static.cli:main"
+
+[tool.bumpversion]
+allow_dirty = false
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+tag = true
+sign_tags = false
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+current_version = "0.1.0"
+
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
