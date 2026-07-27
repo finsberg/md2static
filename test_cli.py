@@ -87,7 +87,7 @@ def test_convert_md_to_static_pdf(tmp_path):
 ### 4. Test CLI Argument Parsing ###
 
 
-def test_main_missing_input_file(tmp_path, capsys):
+def test_main_missing_input_file(tmp_path, caplog):
     """Test the CLI gracefully handles missing input files."""
     missing_input = tmp_path / "does_not_exist.md"
     output_file = tmp_path / "out.pdf"
@@ -95,8 +95,8 @@ def test_main_missing_input_file(tmp_path, capsys):
     result = main([str(missing_input), str(output_file)])
 
     assert result == 1
-    captured = capsys.readouterr()
-    assert "does not exist" in captured.out
+    captured = caplog.records
+    assert "does not exist" in captured[0].message
 
 
 def test_main_success(tmp_path):
