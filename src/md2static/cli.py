@@ -55,12 +55,13 @@ def convert_md_to_static(input_file: Path, output_file: Path) -> int:
         print(f"Error reaching GitHub API: {e}")
         return 1
 
+    format_type = output_file.suffix.lower()
+    if format_type == ".html":
+        output_file.write_text(html_data)
+        return 0
+
     temp_html = Path("temp_github_output.html")
     temp_html.write_text(html_data)
-    format_type = output_file.suffix
-    if format_type == ".html":
-        temp_html.rename(output_file)
-        return 0
 
     print(f"Converting HTML to {format_type.upper()}...")
     try:
@@ -68,7 +69,7 @@ def convert_md_to_static(input_file: Path, output_file: Path) -> int:
             browser = p.chromium.launch()
             page = browser.new_page()
 
-            file_url = f"file://{temp_html.absolute().as_posix()}"
+            file_url = temp_html.absolute().as_uri()
             page.goto(file_url, wait_until="networkidle")
 
             if format_type == ".pdf":
