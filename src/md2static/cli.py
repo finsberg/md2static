@@ -1,9 +1,11 @@
-# md2static/cli.py
+import logging
 import argparse
 from typing import Sequence
 from pathlib import Path
 import requests
 from playwright.sync_api import sync_playwright
+
+logger = logging.getLogger(__name__)
 
 
 def get_github_html(md_text):
@@ -14,6 +16,9 @@ def get_github_html(md_text):
     }
     payload = {"text": md_text, "mode": "gfm"}
 
+    logger.debug(f"Making post request to {url}")
+    logger.debug(f"Using {payload = }")
+    logger.debug(f"Using {headers = }")
     response = requests.post(url, json=payload, headers=headers)
     response.raise_for_status()
 
@@ -46,13 +51,14 @@ def get_github_html(md_text):
 
 
 def convert_md_to_static(input_file: Path, output_file: Path) -> int:
+    logger.debug(f"Reading {input_file = }")
     md_text = input_file.read_text()
 
-    print(f"Asking GitHub API to render '{input_file}'...")
+    logger.info(f"Asking GitHub API to render '{input_file}'...")
     try:
         html_data = get_github_html(md_text)
     except Exception as e:
-        print(f"Error reaching GitHub API: {e}")
+        logger.error(f"Error reaching GitHub API: {e}")
         return 1
 
     format_type = output_file.suffix.lower()
@@ -61,28 +67,33 @@ def convert_md_to_static(input_file: Path, output_file: Path) -> int:
         return 0
 
     temp_html = Path("temp_github_output.html")
+    logger.debug(f"Writing temporary HTML to {temp_html}")
     temp_html.write_text(html_data)
 
-    print(f"Converting HTML to {format_type.upper()}...")
+    logger.info(f"Converting HTML to {format_type.upper()}...")
     try:
         with sync_playwright() as p:
+            logger.debug("Launching browser...")
             browser = p.chromium.launch()
             page = browser.new_page()
 
             file_url = temp_html.absolute().as_uri()
+            logger.debug(f"Navigating to {file_url}")
             page.goto(file_url, wait_until="networkidle")
 
             if format_type == ".pdf":
+                logger.debug(f"Saving page as PDF to {output_file}")
                 page.pdf(path=output_file, print_background=True)
             else:
                 # Try to take a screenshot
+                logger.debug(f"Saving page as image to {output_file}")
                 page.screenshot(path=output_file, full_page=True)
 
             browser.close()
-            print(f"Successfully created '{output_file}'!")
+            logger.info(f"Successfully created '{output_file}'!")
 
     except Exception as e:
-        print(f"Error during rendering: {e}")
+        logger.error(f"Error during rendering: {e}")
 
     finally:
         temp_html.unlink(missing_ok=True)
@@ -95,10 +106,17 @@ def main(argv: Sequence[str] | None = None):
     )
     parser.add_argument("input", type=Path, help="Path to the input Markdown file")
     parser.add_argument("output", type=Path, help="Path to the output file")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose logging"
+    )
 
     args = vars(parser.parse_args(argv))
+    if args["verbose"]:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
     if not args["input"].is_file():
-        print(f"Error: Input file '{args['input']}' does not exist.")
+        logger.error(f"Error: Input file '{args['input']}' does not exist.")
         return 1
     else:
         return convert_md_to_static(
