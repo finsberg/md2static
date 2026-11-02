@@ -1,8 +1,8 @@
 # md2static
 
-A lightweight command-line tool that converts Markdown files into static PDFs, Images (PNG/JPEG), or HTML using the official GitHub Markdown API for pixel-perfect styling.
+A lightweight command-line tool that converts Markdown files into static PDFs, Images (PNG/JPEG), or HTML with GitHub styling.
 
-It leverages GitHub's API to parse the Markdown into HTML, wraps it in the official GitHub CSS, and uses a headless browser (Playwright) to capture the styled output.
+It parses the Markdown locally with [cmark-gfm](https://github.com/github/cmark-gfm) (the parser GitHub uses, via [cmarkgfm](https://github.com/theacodes/cmarkgfm)), wraps it in [github-markdown-css](https://github.com/sindresorhus/github-markdown-css), and uses a headless browser (Playwright) to capture the styled output.
 
 It is very much inspired by [grip](https://github.com/joeyespo/grip).
 
@@ -33,4 +33,4 @@ md2static README.md screenshot.png
 ```
 
 ## License
-MIT
+MIT. Bundles [github-markdown-css](https://github.com/sindresorhus/github-markdown-css) (MIT, © Sindre Sorhus), see `src/md2static/static/LICENSE-github-markdown-css`.
