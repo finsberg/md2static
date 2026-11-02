@@ -130,7 +130,9 @@ def test_convert_md_to_static_pdf_failure_returns_nonzero(tmp_path, caplog):
     output_file = tmp_path / "output.pdf"
 
     with patch("md2static.cli.sync_playwright") as mock_playwright:
-        mock_playwright.return_value.__enter__.return_value.chromium.launch.side_effect = RuntimeError("no browser")
+        mock_playwright.return_value.__enter__.return_value.chromium.launch.side_effect = RuntimeError(
+            "no browser"
+        )
 
         result = convert_md_to_static(input_file, output_file)
 

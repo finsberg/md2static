@@ -103,7 +103,9 @@ def markdown_to_html(md_text):
     html_content = highlight_code(html_content)
 
     css = (files("md2static") / "static" / "github-markdown-light.css").read_text()
-    css += HtmlFormatter(style=GitHubLightStyle).get_style_defs(".markdown-body .highlight")
+    css += HtmlFormatter(style=GitHubLightStyle).get_style_defs(
+        ".markdown-body .highlight"
+    )
 
     # Updated HTML template with MathJax injected
     html_template = f"""
@@ -125,7 +127,7 @@ def markdown_to_html(md_text):
                 padding: 45px;
             }}
         </style>
-        
+
         <!-- MathJax Configuration -->
         <script>
             MathJax = {{
@@ -142,7 +144,7 @@ def markdown_to_html(md_text):
         <script type="text/javascript" id="MathJax-script" async
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
         </script>
-        
+
     </head>
     <body class="markdown-body">
         {html_content}
